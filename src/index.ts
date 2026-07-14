@@ -9,7 +9,16 @@
 // No Chrome/DOM/server dependencies — safe to import from sider_api,
 // sider_extension, and sider_app alike.
 
-export * from "./templating";
+// Clustering/templating + recipe hashing moved to sider_types (shared with the
+// backend); re-exported here so sider_lib's public API stays stable.
+export {
+  templatePath,
+  graphqlOperationOf,
+  endpointKey,
+  clusterObservations,
+  hashRecipe,
+  canonicalizeRecipe,
+} from "@sudobility/sider_types";
 export * from "./tokenize";
 export * from "./recipe";
 export * from "./gates";
