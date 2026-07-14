@@ -1,0 +1,29 @@
+---
+# CI/CD workflow for sider_lib
+# Runs test / lint / typecheck via the shared reusable workflow. NPM publishing
+# is skipped (private package); NPM_TOKEN is used only for installing private
+# @sudobility dependencies.
+
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: write
+  id-token: write
+  deployments: write
+
+jobs:
+  cicd:
+    uses: johnqh/workflows/.github/workflows/unified-cicd.yml@main
+    with:
+      skip-npm-publish: true
+    secrets: inherit
