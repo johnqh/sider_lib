@@ -1,3 +1,7 @@
+---
+# CI/CD workflow for sider_lib
+# Automatically publishes to NPM when NPM_TOKEN is configured
+
 name: CI/CD
 
 on:
@@ -11,13 +15,14 @@ on:
       - develop
 
 permissions:
-  contents: write
-  id-token: write
-  deployments: write
+  contents: write # For creating GitHub releases
+  id-token: write # For NPM provenance
+  deployments: write # For deployment tracking
 
 jobs:
   cicd:
     uses: johnqh/workflows/.github/workflows/unified-cicd.yml@main
     with:
-      npm-access: "restricted"
-    secrets: inherit
+      npm-access: 'public'
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
