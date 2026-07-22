@@ -59,18 +59,19 @@ export function evaluateGates(req: CompiledRequest, ctx: GateContext): GateOutco
     if (!b.ok) return b;
   }
 
-  // --- Gate C: mutations require confirmation -----------------------------
-  // Bind to the HTTP method, not just the server-declared (and therefore
-  // untrusted) safetyClass — a recipe labeled "read" with a POST/PUT/PATCH/
-  // DELETE still mutates and must not run unconfirmed.
+  // --- Gate C: mutations respect site policy; financial requires confirm ---
+  // Bind "is a mutation" to the HTTP method as well as the declared class (a
+  // recipe labeled "read" with a POST still mutates). Product decision
+  // 2026-07-22: only `financial` actions need user confirmation; ordinary
+  // writes (add-to-cart level) run automatically. `allowMutations` remains the
+  // per-site hard stop for ALL mutations.
   const idempotent = req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS";
-  if (req.safetyClass !== "read" || !idempotent) {
-    if (ctx.allowMutations === false) {
-      return { ok: false, gate: "safety", reason: `mutations disabled for ${ctx.siteOrigin}` };
-    }
-    if (!ctx.confirmed) {
-      return { ok: false, gate: "safety", reason: `mutating request requires confirmation` };
-    }
+  const mutating = req.safetyClass !== "read" || !idempotent;
+  if (mutating && ctx.allowMutations === false) {
+    return { ok: false, gate: "safety", reason: `mutations disabled for ${ctx.siteOrigin}` };
+  }
+  if (req.safetyClass === "financial" && !ctx.confirmed) {
+    return { ok: false, gate: "safety", reason: `financial request requires confirmation` };
   }
 
   return { ok: true };

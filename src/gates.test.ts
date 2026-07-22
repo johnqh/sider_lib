@@ -74,8 +74,34 @@ test("Gate B: refuses when the sentinel is absent from its declared location", (
   if (!out.ok) expect(out.gate).toBe("injection_location");
 });
 
-test("Gate C: a POST (method-bound) requires confirmation even if labeled read", () => {
-  const out = evaluateGates(req({ method: "POST", safetyClass: "read" }), ctx());
+test("Gate C: a POST labeled read runs unconfirmed (financial-only policy)", () => {
+  expect(evaluateGates(req({ method: "POST", safetyClass: "read" }), ctx())).toEqual({ ok: true });
+});
+
+test("Gate C: write POST runs unconfirmed (financial-only policy)", () => {
+  const out = evaluateGates(req({ method: "POST", safetyClass: "write" }), ctx());
+  expect(out).toEqual({ ok: true });
+});
+
+test("Gate C: financial request without confirmation is blocked", () => {
+  const out = evaluateGates(req({ method: "POST", safetyClass: "financial" }), ctx());
+  expect(out.ok).toBe(false);
+  if (!out.ok) expect(out.gate).toBe("safety");
+});
+
+test("Gate C: financial request with confirmation passes", () => {
+  const out = evaluateGates(req({ method: "POST", safetyClass: "financial" }), ctx({ confirmed: true }));
+  expect(out).toEqual({ ok: true });
+});
+
+test("Gate C: GET declared financial still requires confirmation", () => {
+  const out = evaluateGates(req({ safetyClass: "financial" }), ctx());
+  expect(out.ok).toBe(false);
+  if (!out.ok) expect(out.gate).toBe("safety");
+});
+
+test("Gate C: allowMutations=false still blocks an unconfirmed write", () => {
+  const out = evaluateGates(req({ method: "POST", safetyClass: "write" }), ctx({ allowMutations: false }));
   expect(out.ok).toBe(false);
   if (!out.ok) expect(out.gate).toBe("safety");
 });
