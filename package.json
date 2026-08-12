@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/sider_lib",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Sider business logic — recipe compiler, egress gates, tokenizer, clustering. Pure, no Chrome/DOM/server.",
   "license": "BUSL-1.1",
   "publishConfig": {
@@ -19,7 +19,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@sudobility/sider_types": "^0.0.6"
+    "@sudobility/sider_types": "^0.0.10"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14",

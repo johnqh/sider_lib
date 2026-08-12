@@ -5,7 +5,7 @@
     "": {
       "name": "@sudobility/sider_lib",
       "dependencies": {
-        "@sudobility/sider_types": "^0.0.6",
+        "@sudobility/sider_types": "^0.0.10",
       },
       "devDependencies": {
         "@types/bun": "^1.3.14",
@@ -14,7 +14,7 @@
     },
   },
   "packages": {
-    "@sudobility/sider_types": ["@sudobility/sider_types@0.0.6", "", {}, "sha512-9qBCK/FSvewMnWWnkLcEG7tRiQExIwwfY9Q5AlsO4VDi3lUFH02Q6w9Vpw5LEob85j4tpDm4jTfamlk8qZp1QQ=="],
+    "@sudobility/sider_types": ["@sudobility/sider_types@0.0.10", "", {}, "sha512-U44+F3TFZaKuzJv/tlSHVCWcd/OFAuQ2Jen0mpgl1KNZHL2Y7hcohoPiAM3k8t20ewWKMN6HbsgNvnvd2bZSvw=="],
 
     "@types/bun": ["@types/bun@1.3.14", "", { "dependencies": { "bun-types": "1.3.14" } }, "sha512-h1hFqFVcvAvD9j9K7ZW7vd82aSA+rTdznZa+5bwvCwqSB1jmmfLcbIWhOLx1/+boy/xmjgCs/OMUL8hRJSmnPw=="],
 
