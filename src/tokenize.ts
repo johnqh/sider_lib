@@ -88,15 +88,36 @@ export function tokenizeObservation(raw: RawObservation, known: KnownSecret[]): 
   };
 
   // 1. Known values (exact substring match everywhere).
+  //
+  // `known` is EVERY cookie and storage entry the page has, not the ones this
+  // request uses, so most of them appear nowhere in it. Masking still runs
+  // unconditionally — that costs nothing and protects a value wherever it turns
+  // up — but a SLOT is only proposed for a value actually found in the request.
+  //
+  // Minting one regardless, at a default of `authorization`, invented an
+  // injection point out of an absence of evidence: a public GET carried 21
+  // headers all named `authorization`, each holding a different analytics
+  // cookie, because every cookie on the page fell through to that default.
+  // Where a value goes is something to observe, never to assume.
   for (const s of known) {
     if (!s.value) continue;
-    const loc = locate(raw, s.value) ?? { at: "header" as const, name: "authorization" };
+    const loc = locate(raw, s.value);
     const ph = samplePlaceholder(s.slotId);
     url = url.split(s.value).join(ph);
     for (const k of Object.keys(headers)) headers[k] = headers[k]!.split(s.value).join(ph);
     requestBody = replaceInJson(requestBody, s.value, ph);
     responseBody = replaceInJson(responseBody, s.value, ph);
-    ensure(s.slotId, s.kind, s.role, loc, s.resolverHint);
+    if (!loc) continue;
+    // Found inside the Cookie header: the browser put it there, so it is
+    // attached automatically at execution rather than substituted by us.
+    const inCookieHeader = loc.at === "header" && loc.name.toLowerCase() === "cookie";
+    ensure(
+      s.slotId,
+      s.kind,
+      inCookieHeader ? "auto_cookie" : s.role,
+      inCookieHeader ? { at: "cookie", name: loc.name } : loc,
+      s.resolverHint,
+    );
   }
 
   // 2. Credential-bearing headers (by name), even when the value wasn't in storage.
