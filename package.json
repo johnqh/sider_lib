@@ -1,10 +1,10 @@
 {
   "name": "@sudobility/sider_lib",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Sider business logic — recipe compiler, egress gates, tokenizer, clustering. Pure, no Chrome/DOM/server.",
   "license": "BUSL-1.1",
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "type": "module",
   "main": "src/index.ts",
