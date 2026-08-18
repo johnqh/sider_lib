@@ -11,6 +11,19 @@
 
 // Clustering/templating + recipe hashing moved to sider_types (shared with the
 // backend); re-exported here so sider_lib's public API stays stable.
+// Personal-data recognition lives in sider_types for the same reason the
+// clustering did: the backend needs it too, and it must be the SAME rules on
+// both sides. Re-exported so sider_lib's public API stays stable.
+export {
+  REDACTED,
+  redactPersonalText,
+  redactSensitiveText,
+  isSensitiveValue,
+  isLuhnValid,
+  looksLikeIban,
+  looksLikeRoutingNumber,
+} from "@sudobility/sider_types";
+
 export {
   templatePath,
   graphqlOperationOf,
