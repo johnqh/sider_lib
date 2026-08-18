@@ -122,3 +122,29 @@ test("cookie-borne slot is refused (must be auto-attached, never injected)", () 
   expect(out.ok).toBe(false);
   if (!out.ok) expect(out.gate).toBe("injection_location");
 });
+
+// --- correlation headers ----------------------------------------------------
+
+import { isCorrelationHeader } from "./correlation";
+
+test("a correlation id is not a credential", () => {
+  // The header that blocked a signed-in user's call: it ends in "session", so
+  // the name rule claimed it, and no local store holds a per-page trace id.
+  expect(isCorrelationHeader("x-ebay-c-correlation-session")).toBe(true);
+  expect(isCorrelationHeader("x-request-id")).toBe(true);
+  expect(isCorrelationHeader("traceparent")).toBe(true);
+});
+
+test("real credentials are still credentials, whatever else the name says", () => {
+  expect(isCorrelationHeader("authorization")).toBe(false);
+  expect(isCorrelationHeader("cookie")).toBe(false);
+  expect(isCorrelationHeader("x-csrf-token")).toBe(false);
+  expect(isCorrelationHeader("x-api-key")).toBe(false);
+  // Contains a correlation word AND an unambiguous credential word: the
+  // credential wins, because dropping it would send an unauthenticated call.
+  expect(isCorrelationHeader("x-csrf-correlation")).toBe(false);
+});
+
+test("a session header with no correlation marker stays a secret", () => {
+  expect(isCorrelationHeader("x-session-id")).toBe(false);
+});

@@ -11,6 +11,7 @@
 //   4. JWT-shaped strings anywhere in a body.
 // Bias is conservative-for-privacy: over-mask rather than leak.
 
+import { isCorrelationHeader } from "./correlation";
 import type {
   HttpMethod,
   InjectionLocation,
@@ -125,6 +126,10 @@ export function tokenizeObservation(raw: RawObservation, known: KnownSecret[]): 
     const val = headers[name];
     if (typeof val !== "string" || !val || val.startsWith("{{secret:")) continue;
     if (!SECRET_HEADER_RE.test(name)) continue;
+    // A correlation id is not a credential. Minting a slot for one guarantees a
+    // block later: no local store holds a per-page trace id, so the call dies
+    // at egress for want of a value the site does not need sent.
+    if (isCorrelationHeader(name)) continue;
     const lname = name.toLowerCase();
     const slotId = `slot:${host}:${normalize(name)}`;
     headers[name] = samplePlaceholder(slotId);

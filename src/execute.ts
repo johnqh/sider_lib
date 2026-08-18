@@ -6,6 +6,7 @@
 
 import type { CompiledRequest, SecretSlot } from "@sudobility/sider_types";
 import { compileRecipe, secretSentinel } from "./recipe";
+import { isCorrelationHeader } from "./correlation";
 import { evaluateGates } from "./gates";
 import type { ToolSpec } from "@sudobility/sider_types";
 import type { CompileContext } from "./recipe";
@@ -37,7 +38,20 @@ export function detokenizeRequest(
     if (slot && (slot.role === "auto_cookie" || slot.injectionLocation.at === "cookie")) continue;
 
     const value = resolve(slotId);
-    if (value === undefined) throw new Error(`Unresolved secret slot at egress: ${slotId}`);
+    if (value === undefined) {
+      // A correlation header that cannot be resolved is dropped, not fatal.
+      // Slots minted before these were recognised still sit in the registry,
+      // and every one of them would otherwise block a call the user's own
+      // session can make — the site issues a fresh id when the header is absent.
+      if (slot && slot.injectionLocation.at === "header" && isCorrelationHeader(slot.injectionLocation.name)) {
+        delete headers[slot.injectionLocation.name];
+        const sen = secretSentinel(slotId);
+        url = url.split(sen).join("");
+        if (bodyStr !== undefined) bodyStr = bodyStr.split(sen).join("");
+        continue;
+      }
+      throw new Error(`Unresolved secret slot at egress: ${slotId}`);
+    }
 
     const sen = secretSentinel(slotId);
     url = url.split(sen).join(value);
