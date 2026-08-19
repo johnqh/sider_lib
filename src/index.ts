@@ -37,3 +37,7 @@ export * from "./recipe";
 export * from "./gates";
 export * from "./execute";
 export * from "./composite";
+
+// Client-side chat history: which conversation belongs to the site in front
+// of you, and what has aged out. Storage and UI live in the extension.
+export * from "./chat-history";
